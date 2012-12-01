@@ -4,9 +4,9 @@ Quick'n dirty script to scrape a user's page at lift.do and
 create a csv file of a user's habit check-ins.
 
 E.g. 
-http://lift.do/users/5046d263bf6a2411642a/
+http://lift.do/users/5046d263bf6a2411642a
 becomes                 
-http://lifter.wanderingstan.com/users/5046d263bf6a2411642a/
+http://lifter.wanderingstan.com/users/5046d263bf6a2411642a
 returns a csv file.
 This can be dynamically linked to a google spreadsheet by putting this 
 in a cell:
