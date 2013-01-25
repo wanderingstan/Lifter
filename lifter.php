@@ -102,37 +102,41 @@ class Habit {
 	public $checkin_array = array(); // array of checkins
 
 	function __construct($url) {
+		// Doesn't matter what timezone, as we only handle dates, but PHP insists.
+		date_default_timezone_set('America/Los_Angeles');
 
-		// Load user's page to get list of all habits
+		// Load habit page to get check-ins
 		$this->url = $url;
 		$habit_html = file_get_contents($this->url);
 
 		// Get habit name
-		$success = preg_match_all('/\<div id="header_info_challenge_name"\>(.*?)\<\/div\>/',$habit_html,$matches);
+		$success = preg_match_all('/\<h1 class="profile-habit-name"\>(.*?)\<\/h1\>/',$habit_html,$matches);
 		$this->name = $matches[1][0];
 
-		// Get habit check-ins
-		$success = preg_match_all('/<span popup_content="[^"]*?([0-9]*)[^"]*?" class="calendar_day".*?current_day="(....-..-..).*?".*?(calendar_day_interior +calendar_day_checked|calendar_day_interior)/s', $habit_html, $matches, PREG_SET_ORDER);
+		// Split HTML into month-chunks
+		$habit_month_split_regex = '/\<h3\>(?P<month_year>[a-zA-Z]+ \d\d\d\d)<\/h3>\W\<table class="cal-month"\>/';
+		$habit_months_html_chunks = preg_split($habit_month_split_regex, $habit_html, -1, PREG_SPLIT_DELIM_CAPTURE);
+		array_shift($habit_months_html_chunks); // get rid of non-calendar chunk at start
+		while (count($habit_months_html_chunks)>0) {
+			$month_year = array_shift($habit_months_html_chunks); // e.g. "January 1912"
+			$month_html = array_shift($habit_months_html_chunks); // HTML of calendar for January 1912
 
-		// now load the results of each habit
-		foreach ($matches as $val) {
-		    if (strpos($val[3],"calendar_day_checked")===FALSE)	{
-		    	// no check-in
-		    	$x="";
-		    }
-		    elseif ($val[1]) {
-		    	// checked in with comment
-		    	$x=$val[1];
-		    }
-		    else {
-		    	// checked in without comment
-		    	$x="X";
-		    }
-		    $this->checkin_array[$val[2]] = $x;
+			// Get habit check-ins for the month
+			$habit_regex = '/\<div class="cal-day\W(?P<checked>checked)?\W"\>.*?(?P<day>\d+)/s';
+			$success = preg_match_all($habit_regex, $month_html, $matches, PREG_SET_ORDER);
+
+			// Put the checkins into our array, with date as key
+			foreach ($matches as $val) {
+				$iso_date = date('Y-m-d',strtotime($val['day'].' '.$month_year));
+				$this->checkin_array[$iso_date] = ($val['checked']) ? 'X' : '';
+			}
 		}
 	}
 }
 
+$test_habit = new Habit("http://lift.do/users/5046d263bf6a2411642a/2417");
+print_r($test_habit);
+exit();
 
 // $uid = "5046d263bf6a2411642a";
 $uid = $_GET['uid'];
