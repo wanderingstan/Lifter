@@ -1,0 +1,8 @@
+
+Warning: file_get_contents(http://lift.do/users/): failed to open stream: HTTP request failed! HTTP/1.1 404 Not Found
+ in /Users/stan/Google Drive/Quantified Stan/lifter/lifter.php on line 37
+
+Warning: Invalid argument supplied for foreach() in /Users/stan/Google Drive/Quantified Stan/lifter/lifter.php on line 45
+
+Warning: Invalid argument supplied for foreach() in /Users/stan/Google Drive/Quantified Stan/lifter/lifter.php on line 60
+Date

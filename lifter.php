@@ -134,12 +134,12 @@ class Habit {
 	}
 }
 
-$uid = "5046d263bf6a2411642a";
+//$uid = "5046d263bf6a2411642a";
 // $test_habit = new Habit("http://lift.do/users/5046d263bf6a2411642a/2417");
 // print_r($test_habit);
 // exit();
 
-//$uid = $_GET['uid'];
+$uid = $_GET['uid'];
 
 $cache_file = $uid . ($extract_numbers ? "_extract_numbers":"") .".csv";
 $cache_life = 21600; // Caching time, in seconds. 21600 secs=6 hours.
