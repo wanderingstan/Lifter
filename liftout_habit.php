@@ -148,10 +148,24 @@ $cache_life = 21600; // Caching time, in seconds. 21600 secs=6 hours.
 
 $filemtime = @filemtime($cache_file);  // returns FALSE if file does not exist
 if (!$filemtime or (time() - $filemtime >= $cache_life)) {
-	ob_start();
-	$my_user = new LiftUser($uid);
-	print ($my_user->print_csv()); // HERE IS WHERE THE WORK HAPPENS
-	file_put_contents($cache_file,ob_get_flush());
+	$my_user = new LiftUser($uid); // THIS DOES THE SCRAPE
+	if (count($my_user->habit_matrix)<2) {
+		// There was a problem parsing. They probably changed the HTML
+		mail("stan@wanderingstan.com","Lift HTML Changed",
+			"Had problems parsing Lift.do HTML, it probably changed.");
+		// Give Cached Version, if we can
+		if ($filemtime) {
+			readfile($cache_file);
+		}
+		else {
+			print ("Sorry, we could read your habits from Lift. The developer has been notified.")
+		}
+	}
+	else {
+		ob_start();
+		print ($my_user->print_csv()); // HERE IT IS CONVERTED TO CSV
+		file_put_contents($cache_file, ob_get_flush());
+	}
 }
 else {
 	readfile($cache_file);
