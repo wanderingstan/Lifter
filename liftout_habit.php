@@ -122,7 +122,7 @@ class Habit {
 			$month_html = array_shift($habit_months_html_chunks); // HTML of calendar for January 1912
 
 			// Get habit check-ins for the month
-			$habit_regex = '/\<div class="cal-day\W(?P<checked>checked)?\W"\>.*?(?P<day>\d+)/s';
+			$habit_regex = '/\<div class="cal-day\W(?P<checked>checked)?[^"]*"\>.*?(?P<day>\d+)/s';
 			$success = preg_match_all($habit_regex, $month_html, $matches, PREG_SET_ORDER);
 
 			// Put the checkins into our array, with date as key
@@ -151,14 +151,17 @@ if (!$filemtime or (time() - $filemtime >= $cache_life)) {
 	$my_user = new LiftUser($uid); // THIS DOES THE SCRAPE
 	if (count($my_user->habit_matrix)<2) {
 		// There was a problem parsing. They probably changed the HTML
-		mail("stan@wanderingstan.com","Lift HTML Changed",
-			"Had problems parsing Lift.do HTML, it probably changed.");
+                $headers = "From: lifter@wanderingstan.com\r\n"; 
+		mail("stan@wanderingstan.com",
+                        "Lift HTML Changed",
+			"Had problems parsing Lift.do HTML, it probably changed.",
+                        $headers);
 		// Give Cached Version, if we can
 		if ($filemtime) {
 			readfile($cache_file);
 		}
 		else {
-			print ("Sorry, we could read your habits from Lift. The developer has been notified.")
+			print ("Sorry, we could read your habits from Lift. The developer has been notified.");
 		}
 	}
 	else {
